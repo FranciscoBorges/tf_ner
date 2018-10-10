@@ -22,7 +22,7 @@ if __name__ == '__main__':
     embeddings = np.zeros((size_vocab, 300))
 
     # Get relevant glove vectors
-    found = 0
+    found = set()
     print('Reading GloVe file (may take a while)')
     with Path('glove.840B.300d.txt').open() as f:
         for line_idx, line in enumerate(f):
@@ -34,10 +34,12 @@ if __name__ == '__main__':
             word = line[0]
             embedding = line[1:]
             if word in word_to_idx:
-                found += 1
+                found.add(word)
                 word_idx = word_to_idx[word]
                 embeddings[word_idx] = embedding
-    print('- done. Found {} vectors for {} words'.format(found, size_vocab))
+                if len(found) == size_vocab and found == word_to_idx.keys():
+                    break
+    print('- done. Found {} vectors for {} words'.format(len(found), size_vocab))
 
     # Save np.array to file
     np.savez_compressed('glove.npz', embeddings=embeddings)
